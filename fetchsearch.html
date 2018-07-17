@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Web API Search</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+  
+</head>
+<body>
+  <div class="container">
+    <h1 class="display-4 mb-4">WebAPI Search Tool</h1>
+    <div class="d-flex">
+	<h2>GitHub Repository Search</h2> 
+    </div>  
+    <hr>
+    <div id="output"></div>
+    <form id="doSearch">
+      <div class="form-group">
+        <input type="text" id="title" class="form-control" placeholder="URL">
+      </div>
+      <div class="form-group">
+        <textarea id="body" class="form-control" placeholder="Search Topics"></textarea>
+      </div>
+      <input type="submit" class="btn btn-secondary" value="Submit">
+    </form>
+  </div>
+
+  <script>
+  
+    // document.getElementById('getRepo').addEventListener('click', getRepo);
+    document.getElementById('doSearch').addEventListener('submit', doSearch);
+
+    function doSearch(e){
+      e.preventDefault();
+
+      let url = document.getElementById('title').value   // for example "https://api.github.com/search/repositories";
+      let topics = document.getElementById('body').value; // enter search terms with spaces
+	  var arr = topics.split(" ");
+	// console.log(topics);
+	  topicsobj=toObject(arr);
+    // console.log(buildUrl(url, topicsobj));
+	getRepo(buildUrl(url, topicsobj));
+    }
+	
+	function toObject(arr) {
+    var rv = {};
+     for (var i = 0; i < arr.length; ++i)
+          topic: rv[i] = arr[i];     
+    return rv;
+    }
+	
+	function getRepo(searchurl){
+	fetch(searchurl, {
+    headers: {
+    Accept: "application/vnd.github.mercy-preview+json"
+    }})
+	.then((res) => res.json())
+    .then((data) => {
+        let output = '<h2 class="mb-4">Results</h2>';
+        data.items.forEach(function(repo){
+          output += `
+            <div class="card card-body mb-3">
+              <h3>${repo.name}</h3>
+              <p>${repo.description}</p>
+            </div>
+          `;
+        });
+        document.getElementById('output').innerHTML = output;
+      })
+    }
+    
+	function buildUrl(url, parameters){
+     var qs = "q=";
+      for(var key in parameters) {
+     var value = parameters[key];
+      qs += "topic:" + encodeURIComponent(value) + "+";
+    }
+     if (qs.length > 0){
+         qs = qs.substring(0, qs.length-1); //chop off last "&"
+         url = url + "?" + qs;
+    }
+    return url;
+    }
+
+   
+  </script>
+</body>
+</html>
